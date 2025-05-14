@@ -13,7 +13,7 @@ def runOutfit(input_str):
     tree = parser.query()
     bot = FashionBot()
     result = bot.visit(tree)
-    print("🤖", result)
+    print(result)
 
 def printUsage():
     print('Usage:')
@@ -25,17 +25,17 @@ def main(argv):
         printUsage()
     elif argv[0] == 'run':
         if len(argv) < 2:
-            print("❗ Vui lòng nhập DSL")
+            print("Vui lòng nhập DSL")
         else:
             input_str = ' '.join(argv[1:])
             runOutfit(input_str)
     elif argv[0] == 'vn':
         if len(argv) < 2:
-            print("❗ Vui lòng nhập câu tiếng Việt")
+            print("Vui lòng nhập câu tiếng Việt")
         else:
             text = ' '.join(argv[1:])
             dsl = vn_to_dsl(text)
-            print("🧠 DSL:", dsl)
+            print("DSL:", dsl)
             runOutfit(dsl)
     else:
         printUsage()

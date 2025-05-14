@@ -1,3 +1,5 @@
+import random
+
 rules = [
     {
         "gender": "female",
@@ -5,7 +7,13 @@ rules = [
         "weather": "cold",
         "style": "minimal",
         "time": "evening",
-        "output": "Áo len oversize, quần jeans dài, giày sneaker trắng và túi đeo chéo nhỏ."
+        "output": [
+                "Áo khoác dạ, đầm dài, giày cao gót.",
+                "Áo blazer, đầm midi, giày bốt.",
+                "Áo cardigan, váy satin, giày cao gót.",
+                "Áo len oversize, quần jeans dài, giày sneaker trắng và túi đeo chéo nhỏ."
+]
+
     },
     {
         "gender": "male",
@@ -91,18 +99,13 @@ rules = [
 
 
 def match_rule(user_input: dict):
-    print("🔍 Input từ người dùng:", user_input)
     for rule in rules:
-        print("🧪 So sánh với rule:", rule)
-        matched = True
-        for k, v in rule.items():
-            if k != "output":
-                if user_input.get(k) != v:
-                    matched = False
-                    print(f"❌ Không khớp: {k} = {user_input.get(k)} ≠ {v}")
-                    break
+        matched = all(user_input.get(k) == v for k, v in rule.items() if k != "output")
         if matched:
-            print("✅ KHỚP RULE:", rule)
-            return rule["output"]
-    print("❌ Không khớp rule nào.")
-    return "❓ Chưa có gợi ý cho tổ hợp này."
+            output = rule["output"]
+            if isinstance(output, list):
+                selected = random.sample(output, k=min(3, len(output)))
+                return "\n".join([f"Option {i+1}: {item}" for i, item in enumerate(selected)])
+            else:
+                return output
+    return "Chưa có gợi ý cho tổ hợp này."
