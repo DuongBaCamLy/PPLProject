@@ -1,49 +1,65 @@
 import re
+import unicodedata
+import string
+import difflib
 
-# Mapping tiếng Việt sang DSL
+def normalize_text(text):
+    text = unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('utf-8')
+    text = text.lower()
+    text = text.translate(str.maketrans('', '', string.punctuation))
+    return text
+
 mappings = {
     "gender": {
-        "nam": "male", "con trai": "male", "mình là nam": "male", "tôi là nam": "male",
-        "nữ": "female", "con gái": "female", "mình là nữ": "female", "tôi là nữ": "female"
+        "male": "male", "boy": "male", "i am male": "male",
+        "female": "female", "girl": "female", "i am female": "female"
     },
     "weather": {
-        "lạnh": "cold", "rét": "cold", "se lạnh": "cold",
-        "nóng": "hot", "oi bức": "hot",
-        "mưa": "rainy", "trời mưa": "rainy",
-        "nắng": "sunny", "trời nắng": "sunny"
+        "cold": "cold", "chilly": "cold", "cool": "cold",
+        "hot": "hot", "humid": "hot",
+        "rain": "rainy", "rainy": "rainy",
+        "sunny": "sunny", "bright": "sunny"
     },
     "time": {
-        "sáng": "morning", "buổi sáng": "morning",
-        "chiều": "afternoon", "buổi chiều": "afternoon",
-        "tối": "evening", "buổi tối": "evening",
-        "đêm": "night", "ban đêm": "night"
+        "morning": "morning",
+        "afternoon": "afternoon",
+        "evening": "evening",
+        "night": "night"
     },
     "event": {
-        "đám cưới": "wedding", "tiệc cưới": "wedding", "cưới": "wedding",
-        "phỏng vấn": "interview", "xin việc": "interview",
-        "đi chơi": "casual", "cafe": "casual"
+        "wedding": "wedding", "marriage": "wedding",
+        "interview": "interview", "job application": "interview",
+        "hangout": "casual", "coffee": "casual"
     },
     "style": {
-        "tối giản": "minimal", "đơn giản": "minimal",
-        "trang trọng": "formal", "lịch sự": "formal",
-        "đường phố": "streetwear", "cá tính": "streetwear",
-        "thể thao": "sporty", "năng động": "sporty"
+        "minimal": "minimal", "simple": "minimal",
+        "formal": "formal", "elegant": "formal",
+        "streetwear": "streetwear", "urban": "streetwear",
+        "sporty": "sporty", "active": "sporty"
     }
 }
 
 def extract_field(text, field):
-    for vi, dsl in mappings[field].items():
-        if vi in text.lower():
+    text = text.lower()
+    for key, dsl in mappings[field].items():
+        if key in text.lower():
             return dsl
+    words = text.split()
+    candidates = list(mappings[field].keys())
+    for word in words:
+        close = difflib.get_close_matches(word, candidates, n = 1, cutoff=0.8)
+        if close:
+            return mappings[field][close[0]]
     return None
 
 def extract_location(text):
-    match = re.search(r"(ở|tại)\s+([a-zA-ZÀ-Ỹà-ỹ]+)", text)
+    match = re.search(r"(at|in)\s+([a-zA-Z\s]+)", text)
     if match:
-        return match.group(2).lower()
+        return match.group(2).strip().lower()
     return None
 
 def vn_to_dsl(text):
+    text = normalize_text(text)
     fields = {}
     for field in mappings:
         value = extract_field(text, field)
@@ -52,12 +68,9 @@ def vn_to_dsl(text):
     loc = extract_location(text)
     if loc:
         fields["location"] = loc
-
-    # Convert sang DSL outfit(...)
-    dsl = "outfit(" + ", ".join([f"{k}={v}" for k, v in fields.items()]) + ")"
+    dsl = "outfit(" + ", ".join(map(lambda kv: f"{kv[0]}={kv[1]}", fields.items())) + ")"
     return dsl
 
 if __name__ == "__main__":
-    text = "Tôi là con gái, trời lạnh, đi đám cưới ở Đà Lạt, phong cách tối giản"
+    text = "I am a girl, it's cold, going to a wedding in Da Lat, minimal style"
     print(vn_to_dsl(text))
-

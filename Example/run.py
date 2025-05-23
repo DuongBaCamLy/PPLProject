@@ -1,4 +1,4 @@
-import sys, os
+import sys
 from antlr4 import *
 
 from CompiledFiles.SampleLexer import SampleLexer
@@ -17,21 +17,21 @@ def runOutfit(input_str):
 
 def printUsage():
     print('Usage:')
-    print('  python run.py run "outfit(...)"    # chạy DSL trực tiếp')
-    print('  python run.py vn "câu tiếng Việt" # nhập tiếng Việt và chạy')
+    print('  python run.py run "outfit(...)"    # run DSL directly')
+    print('  python run.py en "English sentence" # enter English and run')
 
 def main(argv):
     if len(argv) < 1:
         printUsage()
     elif argv[0] == 'run':
         if len(argv) < 2:
-            print("Vui lòng nhập DSL")
+            print("Please enter DSL")
         else:
             input_str = ' '.join(argv[1:])
             runOutfit(input_str)
-    elif argv[0] == 'vn':
+    elif argv[0] == 'en':
         if len(argv) < 2:
-            print("Vui lòng nhập câu tiếng Việt")
+            print("Please enter an English sentence")
         else:
             text = ' '.join(argv[1:])
             dsl = vn_to_dsl(text)

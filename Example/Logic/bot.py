@@ -1,5 +1,5 @@
 from CompiledFiles.SampleVisitor import SampleVisitor
-from Logic.rules import match_rule
+from Logic.rules import logical_query
 
 class FashionBot(SampleVisitor):
     def visitQuery(self, ctx):
@@ -18,4 +18,5 @@ class FashionBot(SampleVisitor):
         return (key, value)
 
     def generate_response(self, data):
-        return match_rule(data)
+        outfit = logical_query(data)
+        return outfit
