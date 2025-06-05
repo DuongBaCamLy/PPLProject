@@ -42,7 +42,8 @@ mappings = {
 def extract_field(text, field):
     text = text.lower()
     for key, dsl in mappings[field].items():
-        if key in text.lower():
+        pattern = r'\b' + re.escape(key) + r'\b'
+        if re.search(pattern, text.lower()):
             return dsl
     words = text.split()
     candidates = list(mappings[field].keys())
